@@ -329,7 +329,7 @@ The specific testing of the Sample service created for this post is included in 
 
 I hope this introduction provided some value and help other people who integrate AngularJS and RequireJS, and who care about software quality and peace of mind.
 
-[blog]: #
+[blog]: http://engineering.radius.com/post/77677879234/testing-angularjs-in-a-requirejs-environment
 [repo]: https://github.com/RadiusIntelligence/require-and-angular-test
 [prev]: http://engineering.radius.com/post/71425827156/requirejs-with-angularjs-an-example
 [httpBackend]: http://docs.angularjs.org/api/ngMock/service/$httpBackend
