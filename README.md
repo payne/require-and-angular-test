@@ -14,14 +14,12 @@ The purpose of the unit test is to help document and enforce the behavior and ou
 
 One very important aspect of our setup is that each of our RequireJS modules defines one AngularJS component, and that component is defined using the fully qualified array syntax.
 
-```
-define(function () {
+    define(function () {
 
-    return ['Dependency1', 'Dependency2', ... , function (Dependency1, Dependency2, ...) {
-        ...
-    }];
-});
-```
+        return ['Dependency1', 'Dependency2', ... , function (Dependency1, Dependency2, ...) {
+            ...
+        }];
+    });
 
 Because we return arrays from our RequireJS modules, we cannot simply run/instantiate our AngularJS components, but rely heavily on the `$injector` service from ngMock as shown below. Personally, I feel this is a wise choice, since the `$injector` is how components are created when the AngularJS application is run.
 
@@ -197,60 +195,54 @@ In your `describe` block we declare any spies for any dependencies for the direc
 
 Then setup the AngularJS ngMock injector to initialize any dependencies. In this case let us imagine that the status chart directive depends on a `formatInput` filter
 
-```
-beforeEach(function () {
-    mocks.module('/assets/templates/status-chart.html');
-    mocks.module(function ($compileProvider, $filterProvider) {
-        $compileProvider.directive('radStatusChart', statusChartDirective);
-        $filterProvider.register('formatInput', function () {
-            return formatInputFilter;
+    beforeEach(function () {
+        mocks.module('/assets/templates/status-chart.html');
+        mocks.module(function ($compileProvider, $filterProvider) {
+            $compileProvider.directive('radStatusChart', statusChartDirective);
+            $filterProvider.register('formatInput', function () {
+                return formatInputFilter;
+            });
         });
     });
-});
-```
 
 Then you start adding tests for each functionality of your directive. Compile the element, and run the `$digest` to evaluate any expressions in the resulting DOM object.
 
-```
-it('should create the internal elements', mocks.inject(function ($compile, $rootScope) {
-    var indices = ['a', 'b', 'c', 'd'];
-    var status = {
-        a: 105,
-        b: 430,
-        c: 105,
-        d: 70
-    };
-    var total = 105 + 430 + 105 + 70;
-    var formattedClasses = {
-        a: 'status-a',
-        b: 'status-b',
-        c: 'status-c',
-        d: 'status-d'
-    };
+    it('should create the internal elements', mocks.inject(function ($compile, $rootScope) {
+        var indices = ['a', 'b', 'c', 'd'];
+        var status = {
+            a: 105,
+            b: 430,
+            c: 105,
+            d: 70
+        };
+        var total = 105 + 430 + 105 + 70;
+        var formattedClasses = {
+            a: 'status-a',
+            b: 'status-b',
+            c: 'status-c',
+            d: 'status-d'
+        };
 
-    formatInputFilter.andCallFake(function (input) { return formattedClasses[input]; });
+        formatInputFilter.andCallFake(function (input) { return formattedClasses[input]; });
 
-    // Compile element and run $digest.
-    $rootScope.status = status;
-    var element = $compile('<div rad-status-chart="status"></div>')($rootScope);
-    $rootScope.$digest();
-```
+        // Compile element and run $digest.
+        $rootScope.status = status;
+        var element = $compile('<div rad-status-chart="status"></div>')($rootScope);
+        $rootScope.$digest();
 
 The resulting element can be inspected to verify the test worked.
 
-```
-    var spanChildren = element.find('span');
-    expect(spanChildren.length).toBe(4);
+        var spanChildren = element.find('span');
+        expect(spanChildren.length).toBe(4);
 
-    // Check each child (e.g. height and texts).
-    angular.forEach(spanChildren, function (value, index) {
-        var key = indices[index];
-        var node = angular.element(value);
-        expect(node.text()).toBe(status[key].toString());
-        expect(node.attr('class')).toContain(formattedClasses[key]);
-    });
-}));
-```
+        // Check each child (e.g. height and texts).
+        angular.forEach(spanChildren, function (value, index) {
+            var key = indices[index];
+            var node = angular.element(value);
+            expect(node.text()).toBe(status[key].toString());
+            expect(node.attr('class')).toContain(formattedClasses[key]);
+        });
+    }));
 
 It is possible check on `node.hasClass(formattedClasses[key])`, but it will not provide much value in case of failure, but write “expected false to be truthy” or similar. The format we chose will actually output some useful names in case of failure. Also, for some reason I found that `hasClass` returned false when a node had multiple classes.
 
@@ -262,31 +254,26 @@ For components that change at certain points, testing on either sides of (and if
 
 For continuing our tests, we can imagine the `formatInput` filter from before. The test for filters is essential, but very simple.
 
-```
-define([
-    'angular',
-    'angularMocks',
-    'format-input.filter'
-], function (angular, mocks, formatInputFilter) {
-    'use strict';
+    define([
+        'angular',
+        'angularMocks',
+        'format-input.filter'
+    ], function (angular, mocks, formatInputFilter) {
+        'use strict';
 
-    describe('formatNumber', function () {
+        describe('formatNumber', function () {
 
-        beforeEach(mocks.module(function ($filterProvider) {
-            $filterProvider.register('formatInput', formatInputFilter);
-        }));
-```
+            beforeEach(mocks.module(function ($filterProvider) {
+                $filterProvider.register('formatInput', formatInputFilter);
+            }));
 
 Again, we input AngularJS and the AngularJS mocks module. We use `mocks.module` to inject the `$filterProvider` which allows registering a filter for the tests, and register our filter as `formatInput`. We could also have created an AngularJS module and used the `.filter(...)` syntax like we used the `.directive(...) syntax above`. Either way should work equally well.
 
 Then we can start adding tests.
 
-```
-it('should format a string into "span-<string>"', mocks.inject(function ($filter) {
-    expect($filter('formatInput')('a')).toEqual('span-a');
-}));
-
-```
+    it('should format a string into "span-<string>"', mocks.inject(function ($filter) {
+        expect($filter('formatInput')('a')).toEqual('span-a');
+    }));
 
 Just like directives you should take care to exercise the parts of the code that are important to you. Usually this is the parts that are hard to understand, or would break other components if they behave differently from the initial implementation.
 
@@ -294,30 +281,26 @@ Just like directives you should take care to exercise the parts of the code that
 
 Controllers often do setup when instantiated. For this testing it makes sense to have a function to create the controller, which can be invoked from the tests themselves.
 
-```
-beforeEach(mocks.inject(function ($injector) {
-    $q = $injector.get('$q');
-    $rootScope = $injector.get('$rootScope');
+    beforeEach(mocks.inject(function ($injector) {
+        $q = $injector.get('$q');
+        $rootScope = $injector.get('$rootScope');
 
-    var $controller = $injector.get('$controller');
-    createSampleController = function () {
-        return $controller(sampleController, {'$scope': $rootScope, 'Sample': SampleSpy});
-    };
-}));
-```
+        var $controller = $injector.get('$controller');
+        createSampleController = function () {
+            return $controller(sampleController, {'$scope': $rootScope, 'Sample': SampleSpy});
+        };
+    }));
 
 Since the sample controller uses the sample service, we use `$q` to provide promise functionality. This also means we need the `$rootScope` to ensure that any promises we do use are resolved.
 
 Since the sample controller start by invoking the `getSamples` method on the sample service, our first test sets up the spy object for the service to return a list of "samples". After running the `$digest` we can check that the samples were delivered onto the scope.
 
-```
-it('should load samples on creation', function () {
-    SampleSpy.getSamples.andReturn($q.when(samples));
-    var controller = createSampleController();
-    $rootScope.$digest();
-    expect($rootScope.samples).toEqual(samples);
-});
-```
+    it('should load samples on creation', function () {
+        SampleSpy.getSamples.andReturn($q.when(samples));
+        var controller = createSampleController();
+        $rootScope.$digest();
+        expect($rootScope.samples).toEqual(samples);
+    });
 
 ## Services (etc...)
 
