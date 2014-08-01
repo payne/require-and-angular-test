@@ -4,7 +4,7 @@
   "description": "An example application showing the testing we employ at Radius.",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "grunt"
   },
   "keywords": [
     "test",
